@@ -102,6 +102,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     const page = (request.query as { page: number }).page;
 
     const res = await zoro.fetchTopUpcoming(page);
+
     reply.status(200).send(res);
   });
 
@@ -114,7 +115,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   });
 
   fastify.get(
-    '/studio:studioId',
+    '/studio/:studioId',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const studioId = (request.params as { studioId: string }).studioId;
       const page = (request.query as { page: number }).page ?? 1;
@@ -142,7 +143,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     },
   );
 
-   fastify.get('/info', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/info', async (request: FastifyRequest, reply: FastifyReply) => {
     const id = (request.query as { id: string }).id;
 
     if (typeof id === 'undefined')
