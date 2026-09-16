@@ -9,7 +9,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     rp.status(200).send({
       intro:
         "Welcome to the dramacool provider: check out the provider's website @ https://dramacool.com.pa/",
-      routes: ['/:query', '/info', '/watch', 'popular','/recent-movies', '/recent-shows'],
+      routes: ['/:query', '/info', '/watch', '/popular','/recent-movies', '/recent-shows'],
       documentation: 'https://docs.consumet.org/#tag/dramacool',
     });
   });
@@ -90,7 +90,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     try {
       const res = await dramacool.fetchRecentMovies(page ? page : 1);
       reply.status(200).send(res);
-    } catch (err){
+    } catch (err) {
       reply
         .status(500)
         .send({ message: 'Something went wrong. Please try again later.' });
@@ -100,7 +100,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   fastify.get("/recent-shows", async (request: FastifyRequest, reply: FastifyReply) => {
     const page = (request.query as { page: number }).page;
     try {
-      const res = await dramacool.fetchRecentTVShows(page ? page : 1);
+      const res = await dramacool.fetchRecentTvShows(page ? page : 1);
       reply.status(200).send(res);
     } catch (err) {
       reply
