@@ -8,6 +8,8 @@ import animekai from './animekai';
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   await fastify.register(animepahe, { prefix: '/animepahe' });
   await fastify.register(zoro, { prefix: '/zoro' });
+  // hianime alias: zoro.ts runs the Hianime provider class
+  await fastify.register(zoro, { prefix: '/hianime' });
   await fastify.register(animekai, { prefix: '/animekai' });
 
   fastify.get('/', async (request: any, reply: any) => {
