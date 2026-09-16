@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
 import { MOVIES } from '@consumet/extensions';
-import { StreamingServers } from '@consumet/extensions/dist/models';
+import { StreamingServers } from '@consumet/extensions';
 
 import cache from '../../utils/cache';
 import { redis } from '../../main';
