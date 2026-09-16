@@ -1,9 +1,9 @@
 import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
 import { ANIME } from '@consumet/extensions';
-import { StreamingServers, SubOrSub } from '@consumet/extensions/dist/models';
+import { StreamingServers, SubOrSub } from '@consumet/extensions';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
-  const zoro = new ANIME.Zoro(process.env.ZORO_URL);
+  const zoro = new ANIME.Hianime(process.env.ZORO_URL);
   let baseUrl = 'https://hianime.to';
   if (process.env.ZORO_URL) {
     baseUrl = `https://${process.env.ZORO_URL}`;
@@ -102,7 +102,6 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     const page = (request.query as { page: number }).page;
 
     const res = await zoro.fetchTopUpcoming(page);
-
     reply.status(200).send(res);
   });
 
@@ -115,7 +114,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   });
 
   fastify.get(
-    '/studio/:studioId',
+    '/studio:studioId',
     async (request: FastifyRequest, reply: FastifyReply) => {
       const studioId = (request.params as { studioId: string }).studioId;
       const page = (request.query as { page: number }).page ?? 1;
@@ -143,7 +142,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     },
   );
 
-  fastify.get('/info', async (request: FastifyRequest, reply: FastifyReply) => {
+   fastify.get('/info', async (request: FastifyRequest, reply: FastifyReply) => {
     const id = (request.query as { id: string }).id;
 
     if (typeof id === 'undefined')

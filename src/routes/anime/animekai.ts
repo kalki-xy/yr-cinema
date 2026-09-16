@@ -1,6 +1,6 @@
 import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
 import { ANIME } from '@consumet/extensions';
-import { StreamingServers, SubOrSub } from '@consumet/extensions/dist/models';
+import { StreamingServers, SubOrSub } from '@consumet/extensions';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   const animekai = new ANIME.AnimeKai(process.env.ANIMEKAI_URL);
@@ -56,7 +56,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
         reply.status(500).send({
           message: 'Something went wrong. Contact developer for help.',
         });
-      }
+    }
     },
   );
 
@@ -65,7 +65,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     try {
       const res = await animekai.fetchNewReleases(page);
       reply.status(200).send(res);
-    } catch (error) {
+    } catch (error){
       reply.status(500).send({
         message: 'Something went wrong. Contact developer for help.',
       });
@@ -80,7 +80,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     } catch (error) {
       reply.status(500).send({
         message: 'Something went wrong. Contact developer for help.',
-      });
+    });
     }
   });
 
@@ -129,12 +129,12 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
 
       try {
         const res = await animekai.fetchSearchSuggestions(query);
-        reply.status(200).send(res);
+        reply.status(200).send(res)
       } catch (error) {
         reply.status(500).send({
           message: 'Something went wrong. Contact developer for help.',
-        });
-      }
+      });
+    }
     },
   );
 
@@ -230,18 +230,18 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     const genre = (request.params as { genre: string }).genre;
     const page = (request.query as { page: number }).page;
 
-    if (typeof genre === 'undefined')
-      return reply.status(400).send({ message: 'genre is required' });
+      if (typeof genre === 'undefined')
+        return reply.status(400).send({ message: 'genre is required' });
 
-    try {
-      const res = await animekai.genreSearch(genre, page);
-      reply.status(200).send(res);
-    } catch (error) {
-      reply.status(500).send({
-        message: 'Something went wrong. Contact developer for help.',
-      });
-    }
-  });
+      try {
+        const res = await animekai.genreSearch(genre, page);
+        reply.status(200).send(res);
+      } catch (error) {
+        reply.status(500).send({
+          message: 'Something went wrong. Contact developer for help.',
+        });
+      }
+    });
 
   fastify.get('/movies', async (request: FastifyRequest, reply: FastifyReply) => {
     const page = (request.query as { page: number }).page;
@@ -259,7 +259,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     const page = (request.query as { page: number }).page;
     try {
       const res = await animekai.fetchONA(page);
-      reply.status(200).send(res);
+        reply.status(200).send(res);
     } catch (err) {
       reply
         .status(500)
@@ -294,7 +294,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   fastify.get('/tv', async (request: FastifyRequest, reply: FastifyReply) => {
     const page = (request.query as { page: number }).page;
     try {
-      const res = await animekai.fetchTV(page);
+      const res = await animekai.fetchTv(page);
       reply.status(200).send(res);
     } catch (err) {
       reply
