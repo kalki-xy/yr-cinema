@@ -35,7 +35,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     reply.status(200).send(res);
   });
 
-  fastifyYzt('/recent-shows', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/recent-shows', async (request: FastifyRequest, reply: FastifyReply) => {
     let res = redis
       ? await cache.fetch(
         redis as Redis,
@@ -61,7 +61,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     reply.status(200).send(res);
   });
 
-  fastifyYzt('/trending', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/trending', async (request: FastifyRequest, reply: FastifyReply) => {
     const type = (request.query as { type: string }).type;
     try {
       if (!type) {
@@ -70,7 +70,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
             ...(await flixhq.fetchTrendingMovies()),
             ...(await flixhq.fetchTrendingTvShows()),
           ],
-          };
+        };
         return reply.status(200).send(res);
       }
 
@@ -97,7 +97,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     }
   });
 
-  fastifyYzt('/info', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/info', async (request: FastifyRequest, reply: FastifyReply) => {
     const id = (request.query as { id: string }).id;
 
     if (typeof id === 'undefined')
@@ -113,18 +113,18 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
           async () => await flixhq.fetchMediaInfo(id),
           60 * 60 * 3,
         )
-      : await flixhq.fetchMediaInfo(id);
+        : await flixhq.fetchMediaInfo(id);
 
       reply.status(200).send(res);
     } catch (err) {
       reply.status(500).send({
         message:
           'Something went wrong. Please try again later. or contact the developers.',
-    });
+      });
     }
   });
 
-  fastifyYzt('/watch', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/watch', async (request: FastifyRequest, reply: FastifyReply) => {
     const episodeId = (request.query as { episodeId: string }).episodeId;
     const mediaId = (request.query as { mediaId: string }).mediaId;
     const server = (request.query as { server: StreamingServers }).server;
@@ -155,7 +155,7 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     }
   });
 
-  fastifyYzt('/servers', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/servers', async (request: FastifyRequest, reply: FastifyReply) => {
     const episodeId = (request.query as { episodeId: string }).episodeId;
     const mediaId = (request.query as { mediaId: string }).mediaId;
 
@@ -179,11 +179,11 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
       reply.status(500).send({
         message:
           'Something went wrong. Please try again later. or contact the developers.',
-    });
+      });
     }
   });
 
-  fastifyYzt('/country/:country', async (request: FastifyRequest, reply: FastifyReply) => {
+  fastify.get('/country/:country', async (request: FastifyRequest, reply: FastifyReply) => {
     const country = (request.params as { country: string }).country;
     const page = (request.query as { page: number }).page ?? 1;
     try {
@@ -228,5 +228,4 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
     }
   });
 };
-
 export default routes;
