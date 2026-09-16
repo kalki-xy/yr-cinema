@@ -27,7 +27,8 @@ const fastify = Fastify({
   maxParamLength: 1000,
   logger: true,
 });
-export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
+export const tmdbApi =
+  process.env.TMDB_KEY && process.env.TMDB_KEY;
 (async () => {
   const PORT = Number(process.env.PORT) || 3000;
 
@@ -36,99 +37,12 @@ export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
     methods: 'GET',
   });
 
-  if (process.env.NODE_ENV === 'DEMO') {
-    console.log(chalk.yellowBright('DEMO MODE ENABLED'));
-
-    const map = new Map<string, { expiresIn: Date }>();
-    // session duration in milliseconds (5 hours)
-    const sessionDuration = 1000 * 60 * 60 * 5;
-
-    fastify.addHook('onRequest', async (request, reply) => {
-      const ip = request.ip;
-      const session = map.get(ip);
-
-      // check if the requester ip has a session (temporary access)
-      if (session) {
-        // if session is found, check if the session is expired
-        const { expiresIn } = session;
-        const currentTime = new Date();
-        const sessionTime = new Date(expiresIn);
-
-        // check if the session has been expired
-        if (currentTime.getTime() > sessionTime.getTime()) {
-          console.log('session expired');
-          // if expired, delete the session and continue
-          map.delete(ip);
-
-          // redirect to the demo request page
-          return reply.redirect('/apidemo');
-        }
-        console.log('session found. expires in', expiresIn);
-        if (request.url === '/apidemo') return reply.redirect('/');
-        return;
-      }
-
-      // if route is not /apidemo, redirect to the demo request page
-      if (request.url === '/apidemo') return;
-
-      console.log('session not found');
-      reply.redirect('/apidemo');
-    });
-
-    fastify.post('/apidemo', async (request, reply) => {
-      const { ip } = request;
-
-      // check if the requester ip has a session (temporary access)
-      const session = map.get(ip);
-
-      if (session) return reply.redirect('/');
-
-      // if no session, create a new session
-      const expiresIn = new Date(Date.now() + sessionDuration);
-      map.set(ip, { expiresIn });
-
-      // redirect to the demo request page
-      reply.redirect('/');
-    });
-
-    fastify.get('/apidemo', async (_, reply) => {
-      try {
-        const stream = fs.readFileSync(__dirname + '/../demo/apidemo.html');
-        return reply.type('text/html').send(stream);
-      } catch (err) {
-        console.error(err);
-        return reply.status(500).send({
-          message: 'Could not load the demo page. Please try again later.',
-        });
-      }
-    });
-
-    // set interval to delete expired sessions every 1 hour
-    setInterval(
-      () => {
-        const currentTime = new Date();
-        for (const [ip, session] of map.entries()) {
-          const { expiresIn } = session;
-          const sessionTime = new Date(expiresIn);
-
-          // check if the session is expired
-          if (currentTime.getTime() > sessionTime.getTime()) {
-            console.log('session expired for', ip);
-            // if expired, delete the session and continue
-            map.delete(ip);
-          }
-        }
-      },
-      1000 * 60 * 60,
-    );
-  }
-
-  console.log(chalk.green(`Starting server on port ${PORT}... 🚀`));
+  console.log(`Starting server on port ${PORT}... \ud83d\ude80`);
   if (!process.env.REDIS_HOST)
     console.warn(chalk.yellowBright('Redis not found. Cache disabled.'));
   if (!process.env.TMDB_KEY)
     console.warn(
-      chalk.yellowBright('TMDB api key not found. the TMDB meta route may not work.'),
+      chalk.yellowBright('TMDB api key not found. The TMDB meta route may not work.'),
     );
 
   await fastify.register(books, { prefix: '/books' });
@@ -145,10 +59,9 @@ export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
   try {
     fastify.get('/', (_, rp) => {
       rp.status(200).send(
-        `Welcome to consumet api! 🎉 \n${process.env.NODE_ENV === 'DEMO'
+        `Welcome to consumet api! \ud83d\udc4b \n${process.env.NODE_ENV === 'DEMO'
           ? 'This is a demo of the api. You should only use this for testing purposes.'
-          : ''
-        }`,
+          : ''}`,
       );
     });
     fastify.get('*', (request, reply) => {
@@ -158,13 +71,18 @@ export const tmdbApi = process.env.TMDB_KEY && process.env.TMDB_KEY;
       });
     });
 
-    fastify.listen({ port: PORT, host: '0.0.0.0' }, (e, address) => {
-      if (e) throw e;
-      console.log(`server listening on ${address}`);
-    });
+    if (process.env.VERCEL || process.env.AWS_LAMBDA_FUNCTION_NAME) {
+      // serverless: requests are routed through the exported handler below
+      console.log('Serverless environment detected - using exported handler');
+    } else {
+      fastify.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
+        if (err) throw err;
+        console.log(`server listening on ${address}`);
+      });
+    }
   } catch (err: any) {
     fastify.log.error(err);
-    process.exit(1);
+    if (!process.env.VERCEL) process.exit(1);
   }
 })();
 export default async function handler(req: any, res: any) {
