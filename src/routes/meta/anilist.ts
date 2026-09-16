@@ -1,14 +1,9 @@
 import { Redis } from 'ioredis';
 import { FastifyRequest, FastifyReply, FastifyInstance, RegisterOptions } from 'fastify';
-import { ANIME, META, PROVIDERS_LIST } from '@consumet/extensions';
-import { Genres, SubOrSub } from '@consumet/extensions/dist/models';
-import Anilist from '@consumet/extensions/dist/providers/meta/anilist';
-import { StreamingServers } from '@consumet/extensions/dist/models';
+import { ANIME, META, PROVIDERS_LIST, Genres, SubOrSub, StreamingServers } from '@consumet/extensions';
 
 import cache from '../../utils/cache';
 import { redis } from '../../main';
-import NineAnime from '@consumet/extensions/dist/providers/anime/9anime';
-import Zoro from '@consumet/extensions/dist/providers/anime/zoro';
 
 const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   fastify.get('/', (_, rp) => {
@@ -390,28 +385,18 @@ const routes = async (fastify: FastifyInstance, options: RegisterOptions) => {
   });
 };
 
-const generateAnilistMeta = (provider: string | undefined = undefined): Anilist => {
+const generateAnilistMeta = (provider: string | undefined = undefined) => {
   if (typeof provider !== 'undefined') {
     let possibleProvider = PROVIDERS_LIST.ANIME.find(
       (p) => p.name.toLowerCase() === provider.toLocaleLowerCase(),
     );
 
-    if (possibleProvider instanceof NineAnime) {
-      possibleProvider = new ANIME.NineAnime(
-        process.env?.NINE_ANIME_HELPER_URL,
-        {
-          url: process.env?.NINE_ANIME_PROXY as string,
-        },
-        process.env?.NINE_ANIME_HELPER_KEY as string,
-      );
-    }
-
     return new META.Anilist(possibleProvider, {
       url: process.env.PROXY as string | string[],
     });
   } else {
-    // default provider is Zoro
-    return new Anilist(new Zoro(), {
+    // default provider is Hianime
+    return new META.Anilist(new ANIME.Hianime(), {
       url: process.env.PROXY as string | string[],
     });
   }
